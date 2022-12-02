@@ -1,4 +1,5 @@
 mod day01;
+mod day02;
 
 fn main() -> Result<(), String> {
     let day_num: u16 = std::env::args()
@@ -8,6 +9,7 @@ fn main() -> Result<(), String> {
         .map_err(|_| "Must pass numeric argument".to_string())?;
     match day_num {
         1 => day01::run(),
+        2 => day02::run(),
         _ => panic!("Day not implemented"),
     }
 
