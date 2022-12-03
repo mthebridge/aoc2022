@@ -1,5 +1,7 @@
+#![feature(slice_as_chunks)]
 mod day01;
 mod day02;
+mod day03;
 
 fn main() -> Result<(), String> {
     let day_num: u16 = std::env::args()
@@ -10,6 +12,7 @@ fn main() -> Result<(), String> {
     match day_num {
         1 => day01::run(),
         2 => day02::run(),
+        3 => day03::run(),
         _ => panic!("Day not implemented"),
     }
 
