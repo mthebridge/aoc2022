@@ -1,4 +1,3 @@
-#![feature(slice_as_chunks)]
 mod day01;
 mod day02;
 mod day03;
