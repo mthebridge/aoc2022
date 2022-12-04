@@ -31,7 +31,7 @@ pub fn run() {
             // Image to help visualise partial overlaps:
             // a..c..b..d  or  c..a..d..b, or the same as part1:
             // a..c..d..b  or  c..a..b..d
-            // All the matters is a between c/d, or c between a/d
+            // All the matters is a between c/d, or c between a/b
             (c <= b && c >= a) || (a >= c && a <= d)
         })
         .count();
