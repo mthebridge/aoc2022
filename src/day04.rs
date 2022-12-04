@@ -11,7 +11,7 @@ pub fn run() {
     };
 
     let sections = input.lines().map(|l| {
-        // Sllit each line at the comma, and aprse the range each side
+        // Split each line at the comma, and parse the range each side
         let (a, b) = l.split_once(",").expect("Bad input");
         (parse_range(a), parse_range(b))
     });
@@ -19,7 +19,7 @@ pub fn run() {
     let part1 = sections
         .clone()
         .filter(|((a, b), (c, d))| {
-            // Image to help visualise:
+            // Image to help visualise complete overlaps:
             // a..c..d..b  or  c..a..b..d
             (a >= c && b <= d) || (a <= c && b >= d)
         })
@@ -28,11 +28,11 @@ pub fn run() {
 
     let part2 = sections
         .filter(|((a, b), (c, d))| {
-            // Image to help visualise:
+            // Image to help visualise partial overlaps:
             // a..c..b..d  or  c..a..d..b, or the same as part1:
             // a..c..d..b  or  c..a..b..d
-            // So all that matters is that at least one of c/d must be between (inclusive) a/b, or vice versa
-            (c <= b && c >= a) || (d >= a && d <= b) || (a >= c && a <= d) || (b >= c && b <= d)
+            // All the matters is a between c/d, or c between a/d
+            (c <= b && c >= a) || (a >= c && a <= d)
         })
         .count();
 
