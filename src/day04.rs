@@ -6,13 +6,13 @@ pub fn run() {
 
     let parse_range = |s: &str| {
         // Split on '-', and parse each side into an integer
-        let (a, b) = s.split_once("-").expect("Bad range");
+        let (a, b) = s.split_once('-').expect("Bad range");
         (a.parse::<u32>().unwrap(), b.parse::<u32>().unwrap())
     };
 
     let sections = input.lines().map(|l| {
         // Split each line at the comma, and parse the range each side
-        let (a, b) = l.split_once(",").expect("Bad input");
+        let (a, b) = l.split_once(',').expect("Bad input");
         (parse_range(a), parse_range(b))
     });
 
