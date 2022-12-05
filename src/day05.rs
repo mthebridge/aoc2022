@@ -1,6 +1,7 @@
 use regex::Regex;
 
 fn run_simulation(mut crates: Vec<Vec<char>>, instructions: &str, part2: bool) -> String {
+    // TODO - Could make this regex global for perf
     let re = Regex::new(r"move (\d+) from (\d+) to (\d+)").unwrap();
     for l in instructions.lines() {
         let captures = re.captures(l).unwrap();
@@ -30,7 +31,7 @@ pub fn run() {
         .unwrap();
 
     // Parse initial state.
-    // Number of stacks is given by the last char in the last line of the starting state.
+    // Number of stacks is given by the last nion-whitespace char in the last line of the starting state.
     let crate_size: usize = start
         .lines()
         .last()
@@ -43,13 +44,16 @@ pub fn run() {
         .unwrap()
         .try_into()
         .unwrap();
+
     let mut crates: Vec<Vec<char>> = vec![vec![]; crate_size];
-    // Iterate over the state in reverse order to build each stack up
+    // Iterate over the state in reverse order to build each stack up from the bottom
+    // Skip over the final line which contains the stack numbers.
     for line in start.lines().rev().skip(1) {
         //
         for (i, c) in line.chars().enumerate() {
             if c.is_ascii_uppercase() {
-                // There are 4 chars ("[X] ") for each stack.  So take the index/4 for the stack number.
+                // There are 4 chars (either "[X] " or 4 spaces) for each stack.
+                // So take the index/4 for the stack number.
                 crates[i / 4].push(c);
             }
         }
@@ -60,5 +64,5 @@ pub fn run() {
         "Part 1: {}",
         run_simulation(crates.clone(), instructions, false)
     );
-    println!("Part 1: {}", run_simulation(crates, instructions, true));
+    println!("Part 2: {}", run_simulation(crates, instructions, true));
 }
