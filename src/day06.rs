@@ -7,13 +7,19 @@ pub fn find_unique_substring_index(input: &[char], subsize: usize) -> Option<usi
             return Some(i + subsize);
         }
     }
-    return None
+    None
 }
 
 pub fn run() {
     let input = include_str!("../inputs/day06.txt");
     let chars: Vec<_> = input.chars().collect();
 
-    println!("Part 1: {}", find_unique_substring_index(&chars, 4).unwrap());
-    println!("Part 2: {}", find_unique_substring_index(&chars, 14).unwrap())
+    println!(
+        "Part 1: {}",
+        find_unique_substring_index(&chars, 4).unwrap()
+    );
+    println!(
+        "Part 2: {}",
+        find_unique_substring_index(&chars, 14).unwrap()
+    )
 }
