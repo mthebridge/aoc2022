@@ -1,13 +1,9 @@
 use std::collections::HashSet;
 
 pub fn find_unique_substring_index(input: &[char], subsize: usize) -> Option<usize> {
-    for (i, substr) in input.windows(subsize).enumerate() {
-        let subset: HashSet<_> = substr.iter().collect();
-        if subset.len() == subsize {
-            return Some(i + subsize);
-        }
-    }
-    None
+    input.windows(subsize).position(|substr| {
+        substr.iter().collect::<HashSet<_>>().len() == subsize
+    }).map(|i| i + subsize)
 }
 
 pub fn run() {
