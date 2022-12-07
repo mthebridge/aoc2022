@@ -76,7 +76,7 @@ pub fn run() {
 
     let part1: u64 = sizes.values().filter(|size| **size <= 100000).sum();
     println!("Part 1: {}", part1);
-    let target = 30000000 - (70000000 - sizes.get("/").unwrap());
+    let target = 30_000_000 - (70_000_000 - sizes.get("/").unwrap());
     let part2 = sizes.values().filter(|s| **s > target).min().unwrap();
 
     println!("Part 2: {}", part2)
