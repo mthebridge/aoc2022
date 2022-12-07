@@ -1,9 +1,79 @@
-pub fn run() {
-    let input = include_str!("../inputs/day07.txt");
+use std::collections::HashMap;
 
-    let part1 = 0;
-    let part2 = 0;
+fn get_path_str(path: &[&str]) -> String {
+    path.join("/")
+}
+
+// Handle moving back up to a parent directory.
+fn complete_child_traversal(sizes: &mut HashMap<String, u64>, cur_path: &mut Vec<&str>) {
+    // Get total size of child
+    let child_path = get_path_str(cur_path);
+    let child_size: u64 = { *sizes.get(child_path.as_str()).unwrap() };
+    // Move tracker back up to parent
+    cur_path.pop().unwrap();
+    let parent_path = get_path_str(cur_path);
+    // Add the child size to parent.
+    let parent_entry = sizes.entry(parent_path);
+    parent_entry.and_modify(|s| {
+        *s += child_size;
+    });
+}
+
+pub fn run() {
+    let input = if std::env::var("AOC_TEST").is_ok() {
+        include_str!("../inputs/test07.txt")
+    } else {
+        include_str!("../inputs/day07.txt")
+    };
+
+    let mut cur_path = vec![];
+    let mut sizes = HashMap::from([]);
+
+    for line in input.lines() {
+        let mut words = line.split_whitespace();
+        match words.next() {
+            Some("$") => {
+                // Command
+                match words.next().unwrap() {
+                    "cd" => match words.next().unwrap() {
+                        ".." => complete_child_traversal(&mut sizes, &mut cur_path),
+                        subdir => {
+                            cur_path.push(subdir);
+                            let ret = sizes.insert(get_path_str(&cur_path), 0);
+                            assert!(ret.is_none());
+                        }
+                    },
+                    "ls" => (),
+                    _ => panic!("Unknown command"),
+                }
+            }
+            Some("dir") => {
+                // New directory - nothing to do
+                assert!(words.next().is_some());
+            }
+            Some(size_str) => {
+                let fsize: u64 = size_str.parse().unwrap();
+                // filename is irrelevant.
+                assert!(words.next().is_some());
+                sizes.entry(get_path_str(&cur_path)).and_modify(|s| {
+                    *s += fsize;
+                });
+            }
+            _ => panic!("Unexpected word"),
+        }
+        // Check we've parsed the whole line
+        assert_eq!(words.next(), None);
+    }
+
+    // Do a final traverse up to the root to catch the final sizes.
+    while !cur_path.is_empty() {
+        complete_child_traversal(&mut sizes, &mut cur_path)
+    }
+
+    let part1: u64 = sizes.values().filter(|size| **size <= 100000).sum();
     println!("Part 1: {}", part1);
+    let target = 30000000 - (70000000 - sizes.get("/").unwrap());
+    let part2 = sizes.values().filter(|s| **s > target).min().unwrap();
 
     println!("Part 2: {}", part2)
 }
