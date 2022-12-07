@@ -38,22 +38,26 @@ pub fn run() {
                     "cd" => match words.next().unwrap() {
                         ".." => complete_child_traversal(&mut sizes, &mut cur_path),
                         subdir => {
+                            // New subdirectory.  Set it as current and add it with empty size.
                             cur_path.push(subdir);
                             let ret = sizes.insert(get_path_str(&cur_path), 0);
+                            // Check this path didn't already exist!
                             assert!(ret.is_none());
                         }
                     },
+                    // Nothing to do here - we're about to get output.
                     "ls" => (),
                     _ => panic!("Unknown command"),
                 }
             }
             Some("dir") => {
-                // New directory - nothing to do
+                // New directory - nothing to do.  Ignore the name.
                 assert!(words.next().is_some());
             }
             Some(size_str) => {
+                // New file - add size to current directory.
                 let fsize: u64 = size_str.parse().unwrap();
-                // filename is irrelevant.
+                // Filename is irrelevant.
                 assert!(words.next().is_some());
                 sizes.entry(get_path_str(&cur_path)).and_modify(|s| {
                     *s += fsize;
@@ -61,11 +65,11 @@ pub fn run() {
             }
             _ => panic!("Unexpected word"),
         }
-        // Check we've parsed the whole line
+        // Check we've parsed the whole line.
         assert_eq!(words.next(), None);
     }
 
-    // Do a final traverse up to the root to catch the final sizes.
+    // Now do a final traverse up to the root to catch the final sizes.
     while !cur_path.is_empty() {
         complete_child_traversal(&mut sizes, &mut cur_path)
     }
