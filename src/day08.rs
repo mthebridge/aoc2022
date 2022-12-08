@@ -1,8 +1,10 @@
+// Calculate the "score" for a part2 viewing range.
 fn score_range<R, P>(range: &mut R, filter: P) -> usize
 where
     R: Iterator<Item = usize> + Clone,
     P: Fn(usize) -> bool,
 {
+    // We want to count the trees shorter than this in order, but add 1 only if there's another tree after that
     let max_distance = range.clone().count();
     let short_count = range.take_while(|i| filter(*i)).count();
     short_count + if max_distance == short_count { 0 } else { 1 }
@@ -61,16 +63,15 @@ pub fn run() {
                 .map(|(x, &this_height)| {
                     // Check the score for each direction. Score is number in order in that direction
                     // that are smaller than this one.
-
                     score_range(&mut (0..x).rev(), |i| heights[y][i] < this_height)
                         * score_range(&mut (x + 1..max_x), |i| heights[y][i] < this_height)
                         * score_range(&mut (0..y).rev(), |j| heights[j][x] < this_height)
                         * score_range(&mut (y + 1..max_y), |j| heights[j][x] < this_height)
                 })
-                .max()
-                .unwrap() // Count the number of visible trees in this row
+                .max() // Find the largest score in this row
+                .unwrap()
         })
-        .max()
+        .max()// Find the largest score in all rows
         .unwrap();
 
     println!("Part 2: {}", part2)
