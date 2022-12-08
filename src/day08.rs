@@ -38,10 +38,7 @@ pub fn run() {
             row.iter()
                 .enumerate()
                 .filter(|&(x, &this_height)| {
-                    // Trees on the edge are always visible
-                    x == 0 || x == max_x - 1 || y == 0 || y == max_y - 1 ||
                     // Check if all trees in any direction are shorter than this one.
-
                     (0..x).all(|i| heights[y][i] < this_height)
                         || (x + 1..max_x).all(|i| heights[y][i] < this_height)
                         || (0..y).all(|j| heights[j][x] < this_height)
