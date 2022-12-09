@@ -68,7 +68,7 @@ pub fn run() {
                 .max() // Find the largest score in this row
                 .unwrap()
         })
-        .max()// Find the largest score in all rows
+        .max() // Find the largest score in all rows
         .unwrap();
 
     println!("Part 2: {}", part2)
