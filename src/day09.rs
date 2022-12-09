@@ -44,7 +44,8 @@ fn update_knot(first: Position, second: Position) -> Position {
     } else if second.y.abs_diff(first.y) > 1 ||
         // More than two away and not in same row or column
         // Move both x and y one closer.
-        second.x.abs_diff(first.x) > 1 {
+        second.x.abs_diff(first.x) > 1
+    {
         if second.y < first.y {
             new_second.y += 1
         } else {
@@ -60,7 +61,6 @@ fn update_knot(first: Position, second: Position) -> Position {
         // Nothing to do - stay put.
     }
     new_second
-
 }
 
 impl Rope {
@@ -74,7 +74,11 @@ impl Rope {
                 Direction::Left => self.head.x -= 1,
             }
             for knot in 0..num_knots {
-                let previous = if knot == 0 { self.head } else { self.knots[knot - 1] };
+                let previous = if knot == 0 {
+                    self.head
+                } else {
+                    self.knots[knot - 1]
+                };
                 self.knots[knot] = update_knot(previous, self.knots[knot]);
                 // println!("Head: ({},{}), knots: ({:?})", self.head.x, self.head.y, self.knots);
             }
@@ -87,18 +91,20 @@ impl Rope {
 // Solve the puzzle - create a rope, and move it according to the input.
 // Return the required output - number of spaces visited by the rope's last knot.
 pub fn simulate_rope(input: &str, num_knots: usize) -> usize {
-    let mut rope: Rope = Default::default();
-    rope.knots = vec![Default::default(); num_knots];
+    let mut rope = Rope {
+        knots: vec![Default::default(); num_knots],
+        ..Default::default()
+    };
 
     for line in input.lines() {
-        let (dir, count_str) = line.split_once(" ").unwrap();
+        let (dir, count_str) = line.split_once(' ').unwrap();
         let count: usize = count_str.parse().unwrap();
         match dir {
             "U" => rope.move_head(Direction::Up, count, num_knots),
             "D" => rope.move_head(Direction::Down, count, num_knots),
             "L" => rope.move_head(Direction::Left, count, num_knots),
             "R" => rope.move_head(Direction::Right, count, num_knots),
-            _ => panic!("Invalid direction")
+            _ => panic!("Invalid direction"),
         }
     }
     rope.visited.len()
@@ -111,9 +117,9 @@ pub fn run() {
         include_str!("../inputs/day09.txt")
     };
 
-    let part1 = simulate_rope(&input, 1);
+    let part1 = simulate_rope(input, 1);
     println!("Part 1: {}", part1);
 
-    let part2 = simulate_rope(&input, 9);
+    let part2 = simulate_rope(input, 9);
     println!("Part 2: {}", part2)
 }
