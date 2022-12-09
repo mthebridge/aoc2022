@@ -23,44 +23,26 @@ enum Direction {
 // Update a single knot to move based on the position of the previous knot in the chain.
 // Rules are:
 // - only move if more than one away in any direction
-// - if same row or column, move one step closer on the other axis
-// - otherwise, move diagonally closer
+// - if so, move 1 closer in all directions where not in same column.
 fn update_knot(first: Position, second: Position) -> Position {
-    let mut new_second = second;
-    if second.y == first.y {
-        // Same y, one step closer on x
-        if second.x > first.x + 1 {
-            new_second.x -= 1;
-        } else if second.x < first.x - 1 {
-            new_second.x += 1;
-        }
-    } else if second.x == first.x {
-        // Same x, one step closer on y
-        if second.y > first.y + 1 {
-            new_second.y -= 1;
-        } else if second.y < first.y - 1 {
-            new_second.y += 1;
-        }
-    } else if second.y.abs_diff(first.y) > 1 ||
-        // More than two away and not in same row or column
-        // Move both x and y one closer.
-        second.x.abs_diff(first.x) > 1
-    {
-        if second.y < first.y {
-            new_second.y += 1
-        } else {
-            new_second.y -= 1
-        }
-
-        if second.x < first.x {
-            new_second.x += 1
-        } else {
-            new_second.x -= 1
+    // Nothing to do unless more than one away in some direction.
+    if second.x.abs_diff(first.x) > 1 || second.y.abs_diff(first.y) > 1 {
+        let step_size = |a, b| {
+            if a < b {
+                1
+            } else if a > b {
+                -1
+            } else {
+                0
+            }
+        };
+        Position {
+            x: second.x + step_size(second.x, first.x),
+            y: second.y + step_size(second.y, first.y)
         }
     } else {
-        // Nothing to do - stay put.
+        second
     }
-    new_second
 }
 
 impl Rope {
