@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, cmp::Ordering};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 struct Position {
@@ -27,13 +27,11 @@ enum Direction {
 fn update_knot(first: Position, second: Position) -> Position {
     // Nothing to do unless more than one away in some direction.
     if second.x.abs_diff(first.x) > 1 || second.y.abs_diff(first.y) > 1 {
-        let step_size = |a, b| {
-            if a < b {
-                1
-            } else if a > b {
-                -1
-            } else {
-                0
+        let step_size = |a: i64, b| {
+            match a.cmp(&b) {
+                Ordering::Equal => 0,
+                Ordering::Less => 1,
+                Ordering::Greater => -1,
             }
         };
         Position {

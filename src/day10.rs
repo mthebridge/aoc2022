@@ -74,6 +74,6 @@ pub fn run() {
                 print!(" ")
             };
         }
-        println!("")
+        println!()
     }
 }
