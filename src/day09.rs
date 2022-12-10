@@ -38,7 +38,7 @@ fn update_knot(first: Position, second: Position) -> Position {
         };
         Position {
             x: second.x + step_size(second.x, first.x),
-            y: second.y + step_size(second.y, first.y)
+            y: second.y + step_size(second.y, first.y),
         }
     } else {
         second
