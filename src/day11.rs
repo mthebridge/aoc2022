@@ -21,7 +21,6 @@ fn run_part(input: &str, part2: bool) -> u64 {
     let monkeys: Vec<Monkey> = input
         .split("\n\n")
         .map(|section| {
-            dbg!(section);
             let matches = monkey_regex.captures(section).expect("Invalid format");
             let item_str = &matches[1];
             let op_str = &matches[2];
@@ -44,10 +43,7 @@ fn run_part(input: &str, part2: bool) -> u64 {
     // To avoid overflows, do everything modulo the LCM of all the divisor tests.
     let lcm: u64 = monkeys.iter().map(|m| m.divisor).product();
     // Now run the rounds
-    for round in 0..(if part2 { 10000 } else { 20 }) {
-        if round % 100 == 0 {
-            println!("Round {}", round)
-        };
+    for _ in 0..(if part2 { 10000 } else { 20 }) {
         run_round(&monkeys, part2, lcm)
     }
 
@@ -86,10 +82,7 @@ fn run_round(monkeys: &[Monkey], part2: bool, lcm: u64) {
     // Because of tedious mutable borrow rules, *also* keep a separate tally of
     // items thrown this round
     for monkey in monkeys {
-        let mut thrown_items = vec![];
-        // println!("Monkey {}", idx);
         for item in monkey.worry_items.borrow_mut().drain(..) {
-            // println!("Inspecting item {}", item);
             monkey.inspection_count.fetch_add(1, Ordering::Relaxed);
             let new_worry = {
                 let tmp = (*monkey.operation)(item % lcm);
@@ -104,11 +97,7 @@ fn run_round(monkeys: &[Monkey], part2: bool, lcm: u64) {
             } else {
                 monkey.false_target
             };
-            // println!("Throwing {} to monkey {}", new_worry, target);
-            thrown_items.push((target, new_worry));
-        }
-        for (target, item) in thrown_items.drain(..) {
-            monkeys[target].worry_items.borrow_mut().push(item)
+            monkeys[target].worry_items.borrow_mut().push(new_worry)
         }
     }
 }
