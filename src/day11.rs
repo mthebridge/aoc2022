@@ -14,7 +14,12 @@ struct Monkey {
 
 fn run_part(input: &str, part2: bool) -> u64 {
     let monkey_regex = regex::Regex::new(
-        r"Monkey \d+:\n\s*Starting items: ((?:\d+,? ?)*)\n\s*Operation: new = (.*)\n\s*Test: divisible by (\d+)\n\s*If true: throw to monkey (\d+)\n\s*If false: throw to monkey (\d+)",
+        r"Monkey \d+:
+\s*Starting items: ((?:\d+,? ?)*)
+\s*Operation: new = (.*)
+\s*Test: divisible by (\d+)
+\s*If true: throw to monkey (\d+)
+\s*If false: throw to monkey (\d+)",
     )
     .unwrap();
 
