@@ -79,8 +79,6 @@ fn parse_operation_str(op_str: &str) -> Box<dyn Fn(u64) -> u64> {
 
 fn run_round(monkeys: &[Monkey], part2: bool, lcm: u64) {
     // Iterate over each monkey and run the logic.
-    // Because of tedious mutable borrow rules, *also* keep a separate tally of
-    // items thrown this round
     for monkey in monkeys {
         for item in monkey.worry_items.borrow_mut().drain(..) {
             monkey.inspection_count.fetch_add(1, Ordering::Relaxed);
