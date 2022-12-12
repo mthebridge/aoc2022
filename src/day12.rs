@@ -7,28 +7,41 @@ struct Position {
 }
 
 impl Position {
-    fn neighbours(&self, max_x: usize, max_y: usize) -> impl Iterator<Item = Position> {
+    fn unvisited_neighbours<'a, 'b>(
+        &'a self,
+        max_x: usize,
+        max_y: usize,
+        visited: &'b [Position],
+    ) -> impl Iterator<Item = Position>
+    where
+        'b: 'a,
+    {
         let mut neighbours = HashSet::with_capacity(4);
+        let mut maybe_add = |pos: Position| {
+            if !visited.contains(&pos) {
+                neighbours.insert(pos);
+            }
+        };
         if self.x > 0 {
-            neighbours.insert(Position {
+            maybe_add(Position {
                 x: self.x - 1,
                 ..*self
             });
         }
         if self.y > 0 {
-            neighbours.insert(Position {
+            maybe_add(Position {
                 y: self.y - 1,
                 ..*self
             });
         }
         if self.x < max_x - 1 {
-            neighbours.insert(Position {
+            maybe_add(Position {
                 x: self.x + 1,
                 ..*self
             });
         }
         if self.y < max_y - 1 {
-            neighbours.insert(Position {
+            maybe_add(Position {
                 y: self.y + 1,
                 ..*self
             });
@@ -40,48 +53,52 @@ impl Position {
         &self,
         heights: &HashMap<Position, u8>,
         target: &Position,
-        visited: &mut HashSet<Position>,
+        path: &mut Vec<Position>,
         max_x: usize,
         max_y: usize,
+        cache: &mut HashMap<Position, usize>,
     ) -> Option<usize> {
-        if self == target {
-            // At the end!
-            println!("Target");
-            Some(0)
-        } else {
-            let is_new = visited.insert(*self);
-            self
-                .neighbours(max_x, max_y)
-                    .map(|next| {
-                        let self_height = heights.get(self).unwrap();
-                        let next_height = heights.get(&next).unwrap();
-                        // Use cached value if been here before
-                        if !is_new {
-                            // Been this way before.  Ignore
-                            // println!("Backtrack:  ({}, {})", next.x, next.y);
-                            None
-                        }
-                        else if self_height + 1 >= *next_height {
-                            // Not been here.
-                            println!("Trying ({}, {})", next.x, next.y);
-                            next.find_distance(
-                                heights,
-                                target,
-                                &mut visited.clone(),
-                                max_x,
-                                max_y,
-                            ).map(|x| x + 1)
-                        } else {
-                            // Can't go this way.
-                            // println!("Blocked:  ({}, {})", next.x, next.y);
-                            None
-                        }
-                    })
-                    .flatten()
-                    .min()
+        match cache.get(self) {
+            Some(hit) if *hit <= path.len() => {
+                // We've been down this route before and we got here faster.  So stop looking.
+                None
+            }
+            _ => {
+                if self == target {
+                    // At the end!
+                    Some(0)
+                } else {
+                    // Record that we got here in N steps.  That way, we can byp[ass future jumps]
+                    cache.insert(*self, path.len());
+                    path.push(*self);
+                    self.unvisited_neighbours(max_x, max_y, path)
+                        .map(|next| {
+                            let self_height = heights.get(self).unwrap();
+                            let next_height = heights.get(&next).unwrap();
+                            if self_height + 1 >= *next_height {
+                                // Can move here.
+                                // println!("Trying ({}, {})", next.x, next.y);
+                                next.find_distance(
+                                    heights,
+                                    target,
+                                    &mut path.clone(),
+                                    max_x,
+                                    max_y,
+                                    cache,
+                                )
+                                .map(|x| x + 1)
+                            } else {
+                                // Can't go this way.
+                                // println!("Blocked:  ({}, {})", next.x, next.y);
+                                None
+                            }
+                        })
+                        .flatten()
+                        .min()
+                }
             }
         }
-
+    }
 }
 
 fn find_position(input: &str, needle: char) -> Position {
@@ -130,10 +147,19 @@ pub fn run() {
 
     let start = find_position(input, 'S');
     let target = find_position(input, 'E');
-    let mut visited = HashSet::with_capacity(max_x * max_y);
-    let part1 = start.find_distance(&height_map, &target, &mut visited, max_x, max_y).unwrap();
+    let part1 = start
+        .find_distance(&height_map, &target, &mut vec![], max_x, max_y, &mut HashMap::with_capacity(max_x * max_y))
+        .unwrap();
     println!("Part 1: {}", part1);
 
-    let part2 = 0;
+    let part2 = height_map
+        .iter()
+        .filter_map(|(k, v)| if *v == 1 { Some(k) } else { None })
+        .map(|k| {
+            k.find_distance(&height_map, &target, &mut vec![], max_x, max_y, &mut HashMap::with_capacity(max_x * max_y))
+                .unwrap_or(usize::MAX)
+        })
+        .min()
+        .unwrap();
     println!("Part 2: {}", part2)
 }
