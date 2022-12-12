@@ -77,7 +77,6 @@ impl Position {
                             let next_height = heights.get(&next).unwrap();
                             if self_height + 1 >= *next_height {
                                 // Can move here.
-                                // println!("Trying ({}, {})", next.x, next.y);
                                 next.find_distance(
                                     heights,
                                     target,
@@ -89,7 +88,6 @@ impl Position {
                                 .map(|x| x + 1)
                             } else {
                                 // Can't go this way.
-                                // println!("Blocked:  ({}, {})", next.x, next.y);
                                 None
                             }
                         })
@@ -143,12 +141,11 @@ pub fn run() {
         })
         .collect::<HashMap<_, _>>();
 
-    // Starting at Position, try all neighbours.
-
     let start = find_position(input, 'S');
     let target = find_position(input, 'E');
+    let cache = &mut HashMap::with_capacity(max_x * max_y);
     let part1 = start
-        .find_distance(&height_map, &target, &mut vec![], max_x, max_y, &mut HashMap::with_capacity(max_x * max_y))
+        .find_distance(&height_map, &target, &mut vec![], max_x, max_y, cache)
         .unwrap();
     println!("Part 1: {}", part1);
 
@@ -156,7 +153,7 @@ pub fn run() {
         .iter()
         .filter_map(|(k, v)| if *v == 1 { Some(k) } else { None })
         .map(|k| {
-            k.find_distance(&height_map, &target, &mut vec![], max_x, max_y, &mut HashMap::with_capacity(max_x * max_y))
+            k.find_distance(&height_map, &target, &mut vec![], max_x, max_y, cache)
                 .unwrap_or(usize::MAX)
         })
         .min()
