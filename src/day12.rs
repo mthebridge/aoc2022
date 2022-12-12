@@ -60,7 +60,8 @@ impl Position {
     ) -> Option<usize> {
         match cache.get(self) {
             Some(hit) if *hit <= path.len() => {
-                // We've been down this route before and we got here faster.  So stop looking.
+                // We've been down this route before and we got here faster in another way.
+                // So stop looking - no possible faster path here.
                 None
             }
             _ => {
@@ -68,15 +69,15 @@ impl Position {
                     // At the end!
                     Some(0)
                 } else {
-                    // Record that we got here in N steps.  That way, we can byp[ass future jumps]
+                    // Record that we got here in N steps, and then ad this node to the current path.
                     cache.insert(*self, path.len());
                     path.push(*self);
                     self.unvisited_neighbours(max_x, max_y, path)
-                        .map(|next| {
+                        .filter_map(|next| {
                             let self_height = heights.get(self).unwrap();
                             let next_height = heights.get(&next).unwrap();
                             if self_height + 1 >= *next_height {
-                                // Can move here.
+                                // Can move here.  Recurse.
                                 next.find_distance(
                                     heights,
                                     target,
@@ -91,7 +92,7 @@ impl Position {
                                 None
                             }
                         })
-                        .flatten()
+                        // Want the shortest route from all 4 neighbours.
                         .min()
                 }
             }
@@ -125,6 +126,7 @@ pub fn run() {
     let max_y = input.lines().count();
     let max_x = input.lines().next().unwrap().chars().count();
 
+    // Parse the heights
     let height_map = input
         .lines()
         .enumerate()
@@ -133,7 +135,7 @@ pub fn run() {
                 let height = match val {
                     'S' => 1,
                     'E' => 26,
-                    x if x.is_ascii_lowercase() => (x as u8 - 'a' as u8) + 1,
+                    x if x.is_ascii_lowercase() => (x as u8 - b'a') + 1,
                     _ => panic!("invalid character"),
                 };
                 (Position { x, y }, height)
@@ -141,8 +143,11 @@ pub fn run() {
         })
         .collect::<HashMap<_, _>>();
 
+    // Find the start and endpoints
     let start = find_position(input, 'S');
     let target = find_position(input, 'E');
+
+    // Keep a cache of places we've already checked
     let cache = &mut HashMap::with_capacity(max_x * max_y);
     let part1 = start
         .find_distance(&height_map, &target, &mut vec![], max_x, max_y, cache)
