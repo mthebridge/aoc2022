@@ -9,6 +9,7 @@ mod day08;
 mod day09;
 mod day10;
 mod day11;
+mod day12;
 
 fn main() -> Result<(), String> {
     let day_num: u16 = std::env::args()
@@ -28,6 +29,7 @@ fn main() -> Result<(), String> {
         9 => day09::run(),
         10 => day10::run(),
         11 => day11::run(),
+        12 => day12::run(),
         _ => panic!("Day not implemented"),
     }
 

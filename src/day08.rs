@@ -17,7 +17,7 @@ pub fn run() {
         include_str!("../inputs/day08.txt")
     };
 
-    // calculate grid size.
+    // Calculate grid size.
     let max_y = input.lines().count();
     let max_x = input.lines().next().unwrap().chars().count();
     // Parse
