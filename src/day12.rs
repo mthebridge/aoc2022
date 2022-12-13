@@ -1,3 +1,6 @@
+// The algorithm here is pretty poor.
+// I didn't remember/look up Dijkstra - so I've implemented a poor approximation.
+// Run in release mode if you want to actually get answers in a sensible timeframe!
 use std::collections::{HashMap, HashSet};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]

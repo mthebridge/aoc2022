@@ -1,5 +1,7 @@
 use itertools::Itertools;
 
+// Ideally we would define our own type structure here and parse manually, but - life's too short.
+// The packets are all (potentially nested) JSON lists of integers.
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct Packet(serde_json::Value);
 

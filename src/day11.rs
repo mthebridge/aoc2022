@@ -1,3 +1,4 @@
+// A nice example I feel of using RefCell!
 use std::sync::atomic::Ordering;
 use std::{cell::RefCell, sync::atomic::AtomicU32};
 
@@ -78,7 +79,7 @@ fn parse_operation_str(op_str: &str) -> Box<dyn Fn(u64) -> u64> {
         (Some(a), "*", None) | (None, "*", Some(a)) => Box::new(move |x| x * a),
         (None, "+", None) => Box::new(|x| x * 2),
         (None, "*", None) => Box::new(|x| x * x),
-        _ => panic!("Invalid oepration string"),
+        _ => panic!("Invalid operation string"),
     }
 }
 
