@@ -40,24 +40,21 @@ pub fn run() {
         // Part 2 - update the screen
         let cur_pixel = (cycle - 1) % 40;
         let cur_row = (cycle - 1) / 40;
-        // Gross hack - we ought to check here for the next instruction being None, but that
-        // messes up the counting...
-        if cur_row >= 6 {
-            break;
-        };
-        screen[cur_row][cur_pixel] = x.abs_diff(cur_pixel as i64) <= 1;
+        let mut update_screen = || screen[cur_row][cur_pixel] = x.abs_diff(cur_pixel as i64) <= 1;
 
         if let Some(v) = pending_add {
             // Still on same instruction
+            update_screen();
             x += v;
             pending_add = None
         } else {
             match instructions.next() {
                 Some(Instr::Addx(val)) => {
+                    update_screen();
                     // Add takes 2 instructions to take effect.
                     pending_add = Some(val);
                 }
-                Some(Instr::Noop) => {}
+                Some(Instr::Noop) => update_screen(),
                 None => break,
             }
         }
