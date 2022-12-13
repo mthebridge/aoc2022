@@ -37,10 +37,13 @@ pub fn run() {
         if cycle % 40 == 20 {
             part1 += x * (cycle as i64);
         }
-        // Part 2 - update the screen
-        let cur_pixel = (cycle - 1) % 40;
-        let cur_row = (cycle - 1) / 40;
-        let mut update_screen = || screen[cur_row][cur_pixel] = x.abs_diff(cur_pixel as i64) <= 1;
+        // Part 2 - update the screen.  Don't do it now - we want to check the next
+        // instruction first.
+        let mut update_screen = || {
+            let cur_pixel = (cycle - 1) % 40;
+            let cur_row = (cycle - 1) / 40;
+            screen[cur_row][cur_pixel] = x.abs_diff(cur_pixel as i64) <= 1
+        };
 
         if let Some(v) = pending_add {
             // Still on same instruction
