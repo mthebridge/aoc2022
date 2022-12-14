@@ -30,19 +30,14 @@ fn fall_sand(grid: &[Vec<Content>], start_x: usize, start_y: usize) -> Option<(u
     match next {
         Some(res) => {
             let y = res + start_y;
-            // println!("  Blockage at ({}, {})", start_x, y);
-            // Full.  Try left.
+            // Full.  Try the left, then right.
             if grid[start_x - 1][y] == Content::Air {
                 fall_sand(grid, start_x - 1, y)
             } else if grid[start_x + 1][y] == Content::Air {
                 fall_sand(grid, start_x + 1, y)
             } else {
-                // Sand ends up on the level above
-                if y > 0 {
-                    Some((start_x, y - 1))
-                } else {
-                    None
-                }
+                // Sand ends up on the level above.
+                Some((start_x, y - 1))
             }
         }
         None => None,
