@@ -7,7 +7,8 @@ type Position = (i64, i64);
 struct Sensor {
     pub location: Position,
     pub closest_beacon: Position,
-    pub closest_beacon_dist: u64
+    pub closest_beacon_dist: u64,
+    pub clear_set: HashSet<Position>
 }
 
 fn distance(this: &Position, other: &Position) -> u64 {
@@ -27,9 +28,8 @@ pub fn run() {
     )
     .unwrap();
 
-    let mut clear_set = HashSet::new();
     let sensors = input
-        .lines()
+    .lines()
         .map(|l| {
             let captures = re.captures(l).unwrap();
             let location: Position = (
@@ -43,22 +43,24 @@ pub fn run() {
             // Build the set of clear spaces between the sensor and beacon.
             let dist = distance(&beacon, &location);
             let idist = dist as i64;
-            dbg!(idist);
-            clear_set.extend((location.0 - idist..location.0 + idist).flat_map(|x| {
-                // if x % 100 == 0 {
-                //     println!("Onto row {}", x);
-                // }
-                (location.1 - idist..location.1 + idist).filter_map(move |y| {
-                    if distance(&(x, y), &location) <= dist && ((x,y)) != beacon {
-                        Some((x, y))
-                    } else { None }
-                })
-            }));
+            let mut clear_set = HashSet::new();
+            // dbg!(idist);
+            for x in location.0 - idist..=location.0 + idist {
+                if x % 100 == 0 {
+                     println!("Onto row {}", x);
+                }
+                let idx = if x < location.0 { x - (location.0 - idist) } else { location.0 + idist - x };
+                // dbg!(idx);
+                for y in location.1 - idx as i64..=location.1 + idx as i64  {
+                    if ((x, y)) != beacon { clear_set.insert((x, y)); }
+                }
+            };
 
             Sensor {
                 location,
                 closest_beacon: beacon,
                 closest_beacon_dist: dist,
+                clear_set
             }
         })
         .collect::<Vec<_>>();
@@ -71,7 +73,7 @@ pub fn run() {
     } else {
         2_000_000
     };
-    let part1 = clear_set.iter().filter(|&pos| pos.1 ==  y_row).collect::<HashSet<_>>();
+    let part1 = sensors.iter().flat_map(|sensor| sensor.clear_set.iter().filter(|&pos| pos.1 ==  y_row)).collect::<HashSet<_>>();
 
     //  dbg!(&part1);
 
@@ -90,7 +92,7 @@ pub fn run() {
             println!("Onto ({}, 0)", x);
         }
         for y in 0..=rangemax {
-            if sensors.iter().all(|sensor| sensor.closest_beacon != (x, y)) && !clear_set.contains(&(x, y)) {
+            if sensors.iter().all(|sensor| sensor.closest_beacon != (x, y) && !sensor.clear_set.contains(&(x, y))) {
                 part2 = (x, y);
                 break 'outer
             }
