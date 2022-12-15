@@ -9,7 +9,7 @@ struct Sensor {
 
 #[inline]
 fn distance(this: &Position, other: &Position) -> u64 {
-    (this.0 - other.0).abs() as u64 + (this.1 - other.1).abs() as u64
+    (this.0 - other.0).unsigned_abs() + (this.1 - other.1).unsigned_abs()
 }
 
 pub fn run() {
@@ -64,13 +64,12 @@ pub fn run() {
     let part1 = (min_x..=max_x)
         .filter(|&x| {
             let this = (x, y_row);
-            // dbg!(&this);
             sensors.iter().any(|sensor| {
                 sensor.closest_beacon != this
                     && distance(&this, &sensor.location) <= sensor.closest_beacon_dist
-        })})
+            })
+        })
         .count();
-    // dbg!(&impossible_positions);
 
     println!("Part 1: {}", part1);
 
@@ -81,24 +80,52 @@ pub fn run() {
     };
 
     // The naive "test every point" is too slow...
-    let part2 = (0..=rangemax)
-        .filter_map(|x| {
-            if x % 100 == 0 {
-                println!("Loop {}", x);
+    let mut x = 0;
+    let mut y = 0;
+    let mut hidden = None;
+    while y <= rangemax {
+        let this = (x as i64, y as i64);
+        let xstep = sensors
+            .iter()
+            .filter_map(|sensor| {
+                let dist = distance(&this, &sensor.location);
+                if dist <= sensor.closest_beacon_dist {
+                    // We are at most (beacon dist - this.1) from this.0. Work out which side, and then
+                    // Move as far as we can out of this range.
+                    let half_range =
+                        sensor.closest_beacon_dist - sensor.location.1.abs_diff(this.1);
+                    let nextx = if sensor.location.0 > this.0 {
+                        // Sensor in front.  Jump forward by x-dist to location, then by the x-distance on the otherside
+                        // (Which is the total beacon range of this sensor minus its  coord )
+                        (sensor.location.0 - this.0) as u64 + half_range + 1
+                    } else {
+                        // Sensor is behind us. - Move forward the remainder
+                        half_range - (this.0 - sensor.location.0) as u64 + 1
+                    };
+                    Some(nextx)
+                } else {
+                    None
+                }
+            })
+            // We can skip over as many point as the furthest beacon.
+            .max();
+        match xstep {
+            None => {
+                hidden = Some((x, y));
+                break;
             }
-            match (0..=rangemax).find(|&y| {
-                let this = (x, y);
-                sensors
-                    .iter()
-                    .all(|sensor| distance(&this, &sensor.location) > sensor.closest_beacon_dist)
-            }) {
-                Some(y) => Some((x, y)),
-                None => None,
+            Some(xval) => {
+                if x + xval <= rangemax {
+                    x += xval;
+                } else {
+                    y += 1;
+                    x = 0;
+                }
             }
-        })
-        .next()
-        .unwrap();
+        }
+    }
 
+    let part2 = hidden.unwrap();
     dbg!(&part2);
-    println!("Part 2: {}", part2.0 * 4_000_000 + part2.1)
+    println!("Part 2: {}", part2.0 as u64 * 4_000_000 + part2.1 as u64)
 }
