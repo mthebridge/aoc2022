@@ -7,6 +7,7 @@ struct Sensor {
     pub closest_beacon_dist: u64,
 }
 
+#[inline]
 fn distance(this: &Position, other: &Position) -> u64 {
     (this.0 - other.0).abs() as u64 + (this.1 - other.1).abs() as u64
 }
@@ -65,15 +66,9 @@ pub fn run() {
             let this = (x, y_row);
             // dbg!(&this);
             sensors.iter().any(|sensor| {
-                if sensor.closest_beacon != this
+                sensor.closest_beacon != this
                     && distance(&this, &sensor.location) <= sensor.closest_beacon_dist
-                {
-                    true
-                } else {
-                    false
-                }
-            })
-        })
+        })})
         .count();
     // dbg!(&impossible_positions);
 
@@ -88,7 +83,7 @@ pub fn run() {
     // The naive "test every point" is too slow...
     let part2 = (0..=rangemax)
         .filter_map(|x| {
-            if x % 10 == 0 {
+            if x % 100 == 0 {
                 println!("Loop {}", x);
             }
             match (0..=rangemax).find(|&y| {
